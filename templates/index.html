@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+    <link rel="icon" type="image/jpg" sizes="16x16" href="static/internationalspacestation.jpg">
+    <title>Where is the ISS?</title>
+</head>
+<body style="background-color:skyblue;">
+<style>
+    @import url('https://fonts.cdnfonts.com/css/yas');
+    body {
+        font-family: 'Yas', sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 20px;
+        background-color: skyblue;
+        text-align: center;
+        }
+    #bach:hover{
+        animation-name: bosch;
+        animation-duration: 3s;
+        animation-timing-function: linear;
+        animation-iteration-count: infinite;
+        filter: brightness(100%);
+    }
+    #bach{
+        display: block;
+        margin: 0 auto 20px;
+        width: 200px;
+        height: 200px;
+        box-shadow: #fff 4px 4px 0 0, #000 4px 4px 0 1px;
+    }
+    @keyframes bosch{
+        0%{
+            transform: rotate(0deg);
+        }
+        100%{
+            transform: rotate(360deg);
+        }
+    }
+    h1 {margin-bottom: 30px;}
+    p {margin-bottom: 20px;}
+</style>
+    <br>
+    <a href="https://maattthhhh.github.io/Pokemon/Pokemon.html"><img src="static/internationalspacestation.jpg" style="width:200px; height: 200px" id="bach"></a>
+    <h1>Where is the ISS?</h1>
+    <p>
+        Latitude: <span id="lat"></span><br />
+        Longitude: <span id="lon"></span><br />
+        Location: <span id="loc"></span><br />
+        <span id="cli"></span>
+    </p>
+    <p>{{ cleaned_text }}</p>
+    <script>
+        const api_url = 'https://api.wheretheiss.at/v1/satellites/25544';
+        async function getISS() {
+            const response = await fetch(api_url);
+            const data = await response.json();
+            const { latitude, longitude } = data;
+            console.log(latitude);
+            console.log(longitude);
+
+            document.getElementById('lat').textContent = latitude;
+            document.getElementById('lon').textContent = longitude;
+
+            const geoapiurl = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`;
+            const geoResponse = await fetch(geoapiurl);
+            const geoData = await geoResponse.json();
+            if (geoData.locality && geoData.locality.includes("GMT")) {
+				if (geoData.continent){
+					document.getElementById('loc').textContent = "The International Space Station is currently near " + geoData.continent + ".";
+                }
+				else {
+					document.getElementById('loc').textContent = "The International Space Station is currently near the " + geoData.localityInfo.informative[0].name + ".";
+				}
+			} else if (!geoData.locality) {
+				document.getElementById('loc').textContent = "The International Space Station is currently near " + geoData.countryName + ".";
+			} else {
+				document.getElementById('loc').textContent = "The International Space Station is currently near " + geoData.locality + ", " + geoData.countryName;
+				const city = geoData.locality;
+				const { description, temperature } = await getCondition(city);
+				document.getElementById('cli').textContent = `Weather condition: ${city} is ${temperature} ${description}`;
+			}
+		async function getCondition(city) {
+			const urlC = `https://wttr.in/${city}?format=%c`;
+            const urlT = `https://wttr.in/${city}?format=%t`;
+			const responseC = await fetch(urlC);
+            const responseT = await fetch(urlT);
+		    const rawC = await responseC.text();
+            const rawT = await responseT.text();
+			const conditionC = rawC.trim();
+            const conditionT = rawT.trim();
+			return { description: conditionC, temperature: conditionT };
+		}}
+		getISS();
+	</script>        
+</body>
+</html>

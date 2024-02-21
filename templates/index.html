@@ -18,7 +18,7 @@
         padding: 20px;
         background-color: skyblue;
         text-align: center;
-        }
+    }
     #bach:hover{
         animation-name: bosch;
         animation-duration: 3s;
@@ -43,6 +43,17 @@
     }
     h1 {margin-bottom: 30px;}
     p {margin-bottom: 20px;}
+    .wikicontent {
+        border: 1px solid #0f0f0f;
+        padding: 15px;
+        display: flex;
+        align-items: center;
+    }
+    .wikicontent img {
+        margin-right: 15px;
+        max-width: 200px;
+        max-height: 200px;
+    }
 </style>
     <br>
     <a href="https://maattthhhh.github.io/Pokemon/Pokemon.html"><img src="static/internationalspacestation.jpg" style="width:200px; height: 200px" id="bach"></a>
@@ -53,7 +64,10 @@
         Location: <span id="loc"></span><br />
         <span id="cli"></span>
     </p>
-    <p>{{ cleaned_text }}</p>
+    <div class="wikicontent">
+        <img src="{{ wikimage_src }}" alt="Scraped Image">
+        <p>{{ cleaned_text }}</p>
+    </div>
     <script>
         const api_url = 'https://api.wheretheiss.at/v1/satellites/25544';
         async function getISS() {
@@ -82,7 +96,7 @@
 				document.getElementById('loc').textContent = "The International Space Station is currently near " + geoData.locality + ", " + geoData.countryName;
 				const city = geoData.locality;
 				const { description, temperature } = await getCondition(city);
-				document.getElementById('cli').textContent = `Weather condition: ${city} is ${temperature} ${description}`;
+				document.getElementById('cli').textContent = `The weather condition in ${city} is ${temperature} ${description}`;
 			}
 		async function getCondition(city) {
 			const urlC = `https://wttr.in/${city}?format=%c`;
